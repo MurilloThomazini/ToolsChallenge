@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-public class ExceptionController {
+public class ExceptionControllerAdvice {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -39,5 +39,16 @@ public class ExceptionController {
         );
 
         return new ResponseEntity<>(erroResponse, HttpStatus.PRECONDITION_FAILED);
+    }
+
+    @ExceptionHandler(TransacaoNaoEncontradaException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorResponse> handleTransacaoNaoEncontradaException(TransacaoNaoEncontradaException ex) {
+        ErrorResponse erroResponse = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                List.of(ex.getMessage())
+        );
+
+        return new ResponseEntity<>(erroResponse, HttpStatus.NOT_FOUND);
     }
 }

@@ -23,12 +23,12 @@ public class PagamentoController {
         return ResponseEntity.ok(objectDTO);
     }
     @PostMapping("/{id}/estorno")
-    public ResponseEntity<TransacaoResponse> estornarPagamento(@PathVariable String id) throws BadRequestException {
+    public ResponseEntity<TransacaoResponse> estornarPagamento(@PathVariable String id) {
         return ResponseEntity.ok(pagamentoService.estornarPagamento(id));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TransacaoResponse> consultarPorId(@PathVariable String id) throws BadRequestException {
+    public ResponseEntity<TransacaoResponse> consultarPorId(@PathVariable String id) {
         return ResponseEntity.ok(pagamentoService.consultarPorId(id));
     }
 

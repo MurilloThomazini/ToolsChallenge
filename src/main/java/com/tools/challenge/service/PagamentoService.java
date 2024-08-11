@@ -1,5 +1,6 @@
 package com.tools.challenge.service;
 
+import com.tools.challenge.exception.TransacaoNaoEncontradaException;
 import com.tools.challenge.models.pagamento.TransacaoResponse;
 import com.tools.challenge.models.pagamento.Transacao;
 import com.tools.challenge.models.pagamento.enums.StatusEnum;
@@ -18,23 +19,27 @@ public class PagamentoService{
     public void salvarTransacao(Transacao transacao) throws BadRequestException {
         validarEntradaPagamento(transacao);
 
+        String primeirosDigitos = transacao.getCartao().substring(0, 4);
+        String ultimosDigitos = transacao.getCartao().substring(12, 16);
+        transacao.setCartao(primeirosDigitos + "********" + ultimosDigitos);
+
         transacao.getDescricao().setNsu(gerarValorUnico());
         transacao.getDescricao().setCodigoAutorizacao(gerarValorUnico());
         transacao.getDescricao().setStatus(StatusEnum.AUTORIZADO);
         transacoes.put(transacao.getId(), transacao);
     }
 
-    public TransacaoResponse estornarPagamento(String id) throws BadRequestException {
+    public TransacaoResponse estornarPagamento(String id) {
         Transacao transacaoConsultada = consultarPorId(id).getTransacao();
         transacaoConsultada.getDescricao().setStatus(StatusEnum.CANCELADO);
         transacoes.put(id, transacaoConsultada);
         return new TransacaoResponse(transacaoConsultada);
     }
 
-    public TransacaoResponse consultarPorId(String id) throws BadRequestException {
+    public TransacaoResponse consultarPorId(String id) throws TransacaoNaoEncontradaException {
         Transacao transacao = transacoes.get(id);
         if (transacao == null) {
-            throw new BadRequestException("Transação com o ID " + id + " não existe");
+            throw new TransacaoNaoEncontradaException("Transação com o ID " + id + " não existe");
         }
         return new TransacaoResponse(transacao);
     }
@@ -42,6 +47,9 @@ public class PagamentoService{
     public List<TransacaoResponse> consultarTodos() {
         List<Transacao> lista = new ArrayList<>(transacoes.values());
         List<TransacaoResponse> listaRetorno = new ArrayList<>();
+        if (lista.isEmpty()) {
+            throw new TransacaoNaoEncontradaException("Não existem transações para serem listadas.");
+        }
         lista.forEach(transacao -> listaRetorno.add(new TransacaoResponse(transacao)));
         return listaRetorno;
     }

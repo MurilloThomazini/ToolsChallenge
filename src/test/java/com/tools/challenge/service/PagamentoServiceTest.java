@@ -1,5 +1,6 @@
 package com.tools.challenge.service;
 
+import com.tools.challenge.exception.TransacaoNaoEncontradaException;
 import com.tools.challenge.models.pagamento.Transacao;
 import com.tools.challenge.models.pagamento.Descricao;
 import com.tools.challenge.models.pagamento.FormaPagamento;
@@ -47,6 +48,13 @@ public class PagamentoServiceTest {
         transacao.getFormaPagamento().setParcelas(2);
 
         assertThrows(BadRequestException.class, () -> pagamentoService.salvarTransacao(transacao));
+    }
+
+    @Test
+    void testPesquisarTransacaoNaoExistente() {
+        Transacao transacao = criarTransacao();
+
+        assertThrows(TransacaoNaoEncontradaException.class, () -> pagamentoService.consultarPorId(transacao.getId()));
     }
 
     private Transacao criarTransacao() {
